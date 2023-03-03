@@ -1,0 +1,77 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  pyright:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+  
+    name: Pyright
+    steps:
+      - uses: actions/checkout@v3
+  
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.local
+          key: poetry-0
+
+      - name: Install Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          
+      - name: Install Dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root --without dev
+
+      - name: Run Pyright
+        uses: jakebailey/pyright-action@v1
+        with:
+          venv-path: .venv
+          warnings: false
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install black and isort
+        run: |
+          python -m ensurepip
+          pip install black isort
+      
+      - name: Lint with black
+        run: black bot --check
+      
+      - name: Lint with isort
+        run: isort bot --check
+        
