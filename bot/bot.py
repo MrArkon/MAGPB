@@ -20,7 +20,7 @@ import discord
 from discord.ext import commands, tasks
 from jishaku.modules import find_extensions_in
 
-from bot import __version__, config
+from bot import __version__, config, models
 
 __log__ = getLogger(__name__)
 
@@ -30,6 +30,7 @@ class Bot(commands.Bot):
     for utility methods shared between plugins."""
 
     launched_at: datetime.datetime
+    tree: models.CommandTree
 
     def __init__(self) -> None:
         intents = discord.Intents(guilds=True, guild_messages=True)
@@ -45,6 +46,7 @@ class Bot(commands.Bot):
             help_command=None,
             max_messages=None,
             heartbeat_timeout=90.0,
+            tree_cls=models.CommandTree,
         )
 
     async def setup_hook(self) -> None:
