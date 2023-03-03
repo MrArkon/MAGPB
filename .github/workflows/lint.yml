@@ -16,72 +16,72 @@ jobs:
     strategy:
       fail-fast: false
     
-  name: Type Coverage and Linting
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-      
-    - name: Load cached poetry installation
-      id: cached-poetry
-      uses: actions/cache@v3
-      with:
-        path: ~/.local
-        key: poetry-0
-    
-    - name: Setup poetry
-      if: steps.cached-poetry.outputs.cache-hit != 'true'
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        virtualenvs-path: .venv
-      
-    - name: Setup Python 3.11
-      id: setup-python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
-        cache: 'poetry'
-    
-    - name: Activate venv
-      run: |
-        source $(poetry env info --path)/bin/activate
-        echo PATH=$PATH >> $GITHUB_ENV
-    
-    - name: Load cached venv
-      id: cached-pip-wheels
-      uses: actions/cache@v3
-      with:
-        path: .venv/
-        key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-    
-    - name: Install python dependencies
-      if: ${{ steps.cached-pip-wheels.outputs.cache-hit != 'true' }}
-      id: install-deps
-      run: |
-          poetry install --no-interaction --no-root
-    
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 19
-    
-    - name: Pyright
-      run: |
-        npm install pyright@latest --global
-        poetry run pyright
+    name: Type Coverage and Linting
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Lint
-      if: ${{ always() && steps.install-deps.outcome == 'success' }}
-      uses: github/super-linter/slim@v4
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DEFAULT_BRANCH: master
-        VALIDATE_ALL_CODEBASE: false
-        VALIDATE_PYTHON_BLACK: true
-        VALIDATE_PYTHON_ISORT: true
-        LINTER_RULES_PATH: /
-        PYTHON_ISORT_CONFIG_FILE: pyproject.toml
-        PYTHON_BLACK_CONFIG_FILE: pyproject.toml
+      - name: Load cached poetry installation
+        id: cached-poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.local
+          key: poetry-0
+
+      - name: Setup poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          virtualenvs-path: .venv
+
+      - name: Setup Python 3.11
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: 'poetry'
+
+      - name: Activate venv
+        run: |
+          source $(poetry env info --path)/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Load cached venv
+        id: cached-pip-wheels
+        uses: actions/cache@v3
+        with:
+          path: .venv/
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install python dependencies
+        if: ${{ steps.cached-pip-wheels.outputs.cache-hit != 'true' }}
+        id: install-deps
+        run: |
+            poetry install --no-interaction --no-root
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19
+
+      - name: Pyright
+        run: |
+          npm install pyright@latest --global
+          poetry run pyright
+
+      - name: Lint
+        if: ${{ always() && steps.install-deps.outcome == 'success' }}
+        uses: github/super-linter/slim@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: master
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_PYTHON_BLACK: true
+          VALIDATE_PYTHON_ISORT: true
+          LINTER_RULES_PATH: /
+          PYTHON_ISORT_CONFIG_FILE: pyproject.toml
+          PYTHON_BLACK_CONFIG_FILE: pyproject.toml
