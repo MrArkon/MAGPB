@@ -13,11 +13,15 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
+from __future__ import annotations
+
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
 import discord
 from discord import app_commands as app
+
+from bot import config
 
 if TYPE_CHECKING:
     from bot import Bot
@@ -38,7 +42,7 @@ class CommandTree(app.CommandTree):
         error = getattr(error, "original", error)
 
         # Unknown Error
-        embed = discord.Embed(color=discord.Color.red())
+        embed = discord.Embed(color=config.RED)
         embed.description = (
             "Something went wrong while trying to process your request. I have notified my developers. "
             f"\n\n```python\n{error.__class__.__name__}: {error}```"
