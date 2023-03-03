@@ -15,10 +15,15 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
 import tomllib
 
+from discord import Colour
+
 with open("config.toml", "rb") as f:
     f = tomllib.load(f)
 
 TOKEN = f["bot"]["token"]
 OWNER_IDS = f["bot"]["owner_ids"]
+
+BLUE = Colour.from_str(f["colors"]["blue"])
+RED = Colour.from_str(f["colors"]["red"])
 
 LOGGING: dict[str, int] = f["logging"]
