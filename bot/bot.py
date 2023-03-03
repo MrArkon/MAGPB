@@ -33,7 +33,7 @@ class Bot(commands.Bot):
     tree: models.CommandTree
 
     def __init__(self) -> None:
-        intents = discord.Intents(guilds=True, guild_messages=True)
+        intents = discord.Intents(members=True, guilds=True, guild_messages=True)
         allowed_mentions = discord.AllowedMentions(everyone=False, users=True, roles=False, replied_user=False)
         activity = discord.Activity(name="myself boot up", type=discord.ActivityType.watching)
 
