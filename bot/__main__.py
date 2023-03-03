@@ -21,11 +21,10 @@ from bot import Bot, config
 
 if __name__ == "__main__":
     discord.utils.setup_logging()
-    
+
     for name, value in config.LOGGING.items():
         getLogger(name).setLevel(value)
-    
+
     discord.VoiceClient.warn_nacl = False
-    
+
     Bot().run(config.TOKEN, log_handler=None)
-    
