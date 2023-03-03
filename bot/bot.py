@@ -13,13 +13,14 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
-from logging import getLogger
 import datetime
+from logging import getLogger
 
 import discord
 from discord.ext import commands, tasks
+from jishaku.modules import find_extensions_in
 
-from bot import config, __version__
+from bot import __version__, config
 
 __log__ = getLogger(__name__)
 
@@ -27,11 +28,11 @@ __log__ = getLogger(__name__)
 class Bot(commands.Bot):
     """Represents the main bot instance, subclasses :class:`commands.Bot`
     for utility methods shared between plugins."""
-    
+
     launched_at: datetime.datetime
 
     def __init__(self) -> None:
-        intents = discord.Intents(guilds=True)
+        intents = discord.Intents(guilds=True, guild_messages=True)
         allowed_mentions = discord.AllowedMentions(everyone=False, users=True, roles=False, replied_user=False)
         activity = discord.Activity(name="myself boot up", type=discord.ActivityType.watching)
 
@@ -43,25 +44,41 @@ class Bot(commands.Bot):
             owner_ids=config.OWNER_IDS,
             help_command=None,
             max_messages=None,
-            heartbeat_timeout=90.0
+            heartbeat_timeout=90.0,
         )
-    
+
     async def setup_hook(self) -> None:
+        plugins = find_extensions_in("bot/plugins")
+
+        failed = 0
+        for plugin in plugins:
+            try:
+                await self.load_extension(plugin)
+            except Exception as exc:
+                failed += 1
+                __log__.error(f"Failed to load plugin '{plugin}'", exc_info=exc)
+
+        message = f"Loaded {len(plugins) - failed} plugins"
+        if failed:
+            message += f" | Failed to load {failed} plugins"
+
+        __log__.info(message)
+
         self.update_activity.start()
-    
+
     @tasks.loop(minutes=10.0)
     async def update_activity(self) -> None:
         await self.wait_until_ready()
 
         activity = discord.Activity(name=f"/help | {len(self.guilds)} servers", type=discord.ActivityType.watching)
         await self.change_presence(activity=activity)
-    
+
     async def on_ready(self) -> None:
         prefix = "Reconnected"
-        
+
         if not hasattr(self, "launched_at"):
             prefix = "Logged in"
             self.launched_at = discord.utils.utcnow()
-        
+
         if self.user is not None:
             __log__.info(f"{prefix} as {self.user} [ID: {self.user.id}] | Running MAGPB v{__version__}")
