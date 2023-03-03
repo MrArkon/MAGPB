@@ -58,7 +58,8 @@ class Bot(commands.Bot):
                 failed += 1
                 __log__.error(f"Failed to load plugin '{plugin}'", exc_info=exc)
 
-        message = f"Loaded {len(plugins) - failed} plugins"
+        total = len(list(self.walk_commands())) + len(list(self.tree.walk_commands()))
+        message = f"Loaded {len(plugins) - failed} plugins with {total} commands"
         if failed:
             message += f" | Failed to load {failed} plugins"
 
