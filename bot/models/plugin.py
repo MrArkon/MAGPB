@@ -13,5 +13,27 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
-from .plugin import Plugin
-from .tree import CommandTree
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from discord.ext import commands
+
+if TYPE_CHECKING:
+    from bot import Bot
+
+
+class Plugin(commands.Cog):
+    """Represents the base cog class. Implements the default :meth:`__init__`
+    to assign the bot attribute.
+
+    Attributes
+    ----------
+    bot: :class:`Bot`
+        The main bot instance.
+    """
+
+    __slots__ = "bot"
+
+    def __init__(self, bot: Bot) -> None:
+        self.bot = bot
