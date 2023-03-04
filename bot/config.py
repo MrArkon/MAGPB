@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
 import tomllib
 
-from discord import Colour
+from discord import Colour, PartialEmoji
 
 with open("config.toml", "rb") as f:
     f = tomllib.load(f)
@@ -25,5 +25,9 @@ OWNER_IDS = f["bot"]["owner_ids"]
 
 BLUE = Colour.from_str(f["colors"]["blue"])
 RED = Colour.from_str(f["colors"]["red"])
+
+BADGES: dict[str, PartialEmoji] = {}
+for name, id in f["badges"].items():
+    BADGES[name] = PartialEmoji(name=name, id=id)
 
 LOGGING: dict[str, int] = f["logging"]
