@@ -71,9 +71,9 @@ class Information(models.Plugin):
                 )
                 or "None",
             )
-        
+
         view = discord.ui.View(timeout=None)
-        
+
         view.add_item(discord.ui.Button(label="View Avatar", style=discord.ButtonStyle.link, url=user.display_avatar.url))
 
         view.add_item(

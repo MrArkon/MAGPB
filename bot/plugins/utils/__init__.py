@@ -17,8 +17,10 @@ from bot import Bot
 
 from .info import Information
 
+
 class Utilities(Information):
     """Contains various utility and informative commands."""
+
 
 async def setup(bot: Bot) -> None:
     await bot.add_cog(Utilities(bot))
