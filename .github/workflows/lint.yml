@@ -74,7 +74,6 @@ jobs:
           poetry run pyright
 
       - name: Lint
-        if: ${{ always() && steps.install-deps.outcome == 'success' }}
         run: |
           black bot --check
           isort bot --check
