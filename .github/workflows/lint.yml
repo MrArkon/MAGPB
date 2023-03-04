@@ -5,10 +5,14 @@ on:
   push:
     branches:
       - master
+    paths:
+      - bot/**
   pull_request:
     branches:
       - master
     types: [ opened, reopened, synchronize ]
+    paths:
+      - bot/**
 
 jobs:
   check:
