@@ -67,14 +67,16 @@ class Bot(commands.Bot):
 
         __log__.info(message)
 
-        self.update_activity.start()
+        self.update_activity_task.start()
 
     @tasks.loop(minutes=10.0)
-    async def update_activity(self) -> None:
-        await self.wait_until_ready()
-
+    async def update_activity_task(self) -> None:
         activity = discord.Activity(name=f"/help | {len(self.guilds)} servers", type=discord.ActivityType.watching)
         await self.change_presence(activity=activity)
+
+    @update_activity_task.before_loop
+    async def before_update_activity(self) -> None:
+        await self.wait_until_ready()
 
     async def on_ready(self) -> None:
         prefix = "Reconnected"
