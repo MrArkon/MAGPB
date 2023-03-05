@@ -13,7 +13,9 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
+import asyncio
 import os
+from contextlib import suppress
 from logging import getLogger
 
 import discord
@@ -23,7 +25,8 @@ from bot import Bot, config
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 
-if __name__ == "__main__":
+
+async def main() -> None:
     discord.utils.setup_logging()
 
     for name, value in config.LOGGING.items():
@@ -31,4 +34,10 @@ if __name__ == "__main__":
 
     discord.VoiceClient.warn_nacl = False
 
-    Bot().run(config.TOKEN, log_handler=None)
+    async with Bot() as bot:
+        await bot.start(config.TOKEN)
+
+
+if __name__ == "__main__":
+    with suppress(KeyboardInterrupt):
+        asyncio.run(main())
