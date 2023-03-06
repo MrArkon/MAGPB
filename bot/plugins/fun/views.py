@@ -88,7 +88,7 @@ class Minesweeper(models.View):
             description=f"{self.interaction.user.mention}'s Minesweeper Game | Moves: {self.moves} | Mines: {self.mines}",
             colour=config.BLUE,
         )
-        
+
     def place_mines(self) -> None:
         previous = set()
         for _ in range(self.mines):
