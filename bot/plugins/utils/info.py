@@ -13,6 +13,8 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
+from collections import Counter
+
 import discord
 from discord import app_commands as app
 
@@ -92,3 +94,90 @@ class Information(models.Plugin):
             )
 
         await interaction.response.send_message(embed=embed, view=view)
+
+    @info.command()
+    async def server(self, interaction: discord.Interaction) -> None:
+        """Obtain information about this server."""
+        guild = interaction.guild
+        assert guild is not None
+
+        embed = discord.Embed(title=guild.name, color=config.BLUE)
+        embed.set_thumbnail(url=getattr(guild.icon, "url", None))
+
+        general = [
+            f"Owned By: {guild.owner.mention if guild.owner else 'N/A'}",
+            f"Created At: {discord.utils.format_dt(guild.created_at, 'D')} "
+            f"({discord.utils.format_dt(guild.created_at, 'R')})",
+        ]
+
+        embed.add_field(name="General", value="\n".join(general), inline=False)
+
+        mfa_level = "Yes" if guild.mfa_level is discord.MFALevel.require_2fa else "No"
+
+        if guild.explicit_content_filter is discord.ContentFilter.disabled:
+            content_filter = "Disabled"
+        elif guild.explicit_content_filter is discord.ContentFilter.no_role:
+            content_filter = "Enabled for members without roles"
+        else:
+            content_filter = "Enabled for everyone"
+
+        moderation = [
+            f"Require 2FA for moderator actions: {mfa_level}",
+            f"Explicit Media Content Filter: {content_filter}",
+            f"Verification Level: {str(guild.verification_level).capitalize()}",
+        ]
+
+        embed.add_field(name="Moderation", value="\n".join(moderation), inline=False)
+
+        bots = sum(member.bot for member in guild.members)
+        integrated = sum(r.is_integration() for r in guild.roles)
+
+        counts = [
+            f"Members: {guild.member_count:,}{f' ({bots} bots)' if bots else ''} " f"/ {guild.max_members:,}",
+            f"Roles: {len(guild.roles)}{f' ({integrated} integrated)' if integrated else ''} / 250",
+            f"Stickers: {len(guild.stickers)} / {guild.sticker_limit}",
+            f"Emojis: {sum(not e.animated for e in guild.emojis)} / {guild.emoji_limit} static"
+            f"; {sum(e.animated for e in guild.emojis)} / {guild.emoji_limit} animated",
+        ]
+
+        text, locked_text = 0, 0
+        voice, locked_voice = 0, 0
+        total = 0
+
+        for channel in guild.channels:
+            allowed, denied = channel.overwrites_for(guild.default_role).pair()
+            permissions = discord.Permissions((guild.default_role.permissions.value & ~denied.value) | allowed.value)
+
+            if isinstance(channel, (discord.TextChannel, discord.ForumChannel)):
+                text += 1
+                if not permissions.read_messages:
+                    locked_text += 1
+            elif isinstance(channel, (discord.VoiceChannel, discord.StageChannel)):
+                voice += 1
+                if not permissions.connect:
+                    locked_voice += 1
+
+            total += 1
+
+        counts.append(
+            f"Channels: {text} text{f' ({locked_text} locked)' if locked_text else ''} "
+            f"and {voice} voice{f' ({locked_voice} locked)' if locked_voice else ''} "
+            f"- {total} / 500"
+        )
+
+        embed.add_field(name="Counts", value="\n".join(counts), inline=False)
+
+        premium = [
+            f"Level {guild.premium_tier} ({guild.premium_subscription_count} Boosts)",
+            f"Boosters: {len(guild.premium_subscribers)}",
+        ]
+
+        last_boost = max(guild.members, key=lambda m: m.premium_since or guild.created_at)  # type: ignore
+        if last_boost.premium_since is not None:
+            premium.append(f"Last Booster: {last_boost.mention} ({discord.utils.format_dt(last_boost.premium_since, 'R')})")
+
+        embed.add_field(name="Premium", value="\n".join(premium), inline=False)
+
+        embed.set_footer(text=f"ID: {guild.id}")
+
+        await interaction.response.send_message(embed=embed)
