@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 # [Unreleased]
 ## Added
-- `/info` parent command which will contain informative commands about various discord entities.
-- `/info user` command for obtaining information about a discord user or member.
-- `/info server` command for obtaining information about a guild.
-- `/minesweeper` minigame command.
+- `userinfo` command for obtaining information about a discord user or member.
+- `serverinfo` command for obtaining information about a guild.
+- `minesweeper` minigame command.
+
+## Changed
+- Switch all commands to be message commands instead of app commands
 
 [Unreleased]: https://github.com/MrArkon/MAGPB
