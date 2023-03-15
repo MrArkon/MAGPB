@@ -24,12 +24,12 @@ from jishaku.features.baseclass import Feature
 from jishaku.math import natural_size
 from jishaku.modules import package_version
 
-from bot import Bot
+from bot import Bot, models
 
 
 class Jishaku(*OPTIONAL_FEATURES, *STANDARD_FEATURES):
     @Feature.Command(name="jishaku", aliases=["jsk"], invoke_without_command=True)
-    async def jsk(self, ctx: commands.Context) -> None:
+    async def jsk(self, ctx: models.Context) -> None:
         description = [
             f"Jishaku v{package_version('jishaku')}, discord.py v{discord.__version__}, "
             f"Python v{python_version()} on {system()} {release()}",

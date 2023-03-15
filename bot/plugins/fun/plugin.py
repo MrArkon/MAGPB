@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
 import discord
-from discord import app_commands as app
+from discord.ext import commands
 
 from bot import models
 
@@ -22,10 +22,9 @@ from .views import Minesweeper
 
 
 class Fun(models.Plugin):
-    @app.command()
-    @app.describe(mines="The amount of mines to place.")
-    async def minesweeper(self, interaction: discord.Interaction, mines: app.Range[int, 3, 24] = 4) -> None:
+    @commands.command(aliases=["ms"])
+    async def minesweeper(self, ctx: models.Context) -> None:
         """Can you find all the mines in minimum possible time and moves?"""
-        view = Minesweeper(interaction, mines)
-        await interaction.response.send_message(embed=view.build_embed(), view=view)
-        view.message = await interaction.original_response()
+        view = Minesweeper(ctx, 4)
+        view.message = await ctx.reply(embed=view.build_embed(), view=view)
+        await view.wait()

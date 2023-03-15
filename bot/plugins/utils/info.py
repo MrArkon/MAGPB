@@ -13,22 +13,17 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
-from collections import Counter
-
 import discord
-from discord import app_commands as app
+from discord.ext import commands
 
 from bot import config, models
 
 
 class Information(models.Plugin):
-    info = app.Group(name="info", description="The parent command for informational commands.")
-
-    @info.command()
-    @app.describe(user="The user you want information about, defaults to you if not provided.")
-    async def user(self, interaction: discord.Interaction, user: discord.Member | discord.User | None = None) -> None:
+    @commands.command(aliases=["memberinfo", "mi", "ui"])
+    async def userinfo(self, ctx: models.Context, user: discord.Member | discord.User | None = None) -> None:
         """Obtain information about any user, whether in the server or not."""
-        user = user or interaction.user
+        user = user or ctx.author
 
         embed = discord.Embed(colour=config.BLUE if user.colour == discord.Colour.default() else user.colour)
         embed.title = f"{user} " + " ".join(str(config.BADGES.get(name, "")) for name, value in user.public_flags if value)
@@ -41,15 +36,13 @@ class Information(models.Plugin):
         )
 
         if isinstance(user, discord.Member):
-            assert interaction.guild is not None
-
             if user.joined_at is not None:
                 embed.add_field(
                     name="Server Member Since",
                     value="\n".join(discord.utils.format_dt(user.joined_at, style=f) for f in ("D", "R")),
                 )
 
-            sorted_members = sorted(interaction.guild.members, key=lambda member: member.joined_at or discord.utils.utcnow())
+            sorted_members = sorted(ctx.guild.members, key=lambda member: member.joined_at or discord.utils.utcnow())
             embed.add_field(name="Join Position", value=f"{sorted_members.index(user) + 1:,}/{len(sorted_members):,}")
 
             embed.add_field(
@@ -93,13 +86,12 @@ class Information(models.Plugin):
                 )
             )
 
-        await interaction.response.send_message(embed=embed, view=view)
+        await ctx.reply(embed=embed, view=view)
 
-    @info.command()
-    async def server(self, interaction: discord.Interaction) -> None:
+    @commands.command(aliases=["si"])
+    async def serverinfo(self, ctx: models.Context) -> None:
         """Obtain information about this server."""
-        guild = interaction.guild
-        assert guild is not None
+        guild = ctx.guild
 
         embed = discord.Embed(title=guild.name, color=config.BLUE)
         embed.set_thumbnail(url=getattr(guild.icon, "url", None))
@@ -180,4 +172,4 @@ class Information(models.Plugin):
 
         embed.set_footer(text=f"ID: {guild.id}")
 
-        await interaction.response.send_message(embed=embed)
+        await ctx.reply(embed=embed)

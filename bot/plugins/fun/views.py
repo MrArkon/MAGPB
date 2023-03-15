@@ -32,8 +32,8 @@ class Cell:
 
 
 class Minesweeper(models.View):
-    def __init__(self, interaction: discord.Interaction, mines: int):
-        super().__init__(interaction, timeout=90)
+    def __init__(self, ctx: models.Context, mines: int):
+        super().__init__(ctx, timeout=90)
 
         self.mines = mines
         self.moves: int = 0
@@ -70,7 +70,7 @@ class Minesweeper(models.View):
                     item.label = str(item.cell.value) if item.cell.value != 0 else "‎"
 
         embed = discord.Embed(
-            description=f"{self.interaction.user.mention} {'found all' if won else 'exploded by'}"
+            description=f"{self.ctx.author.mention} {'found all' if won else 'exploded by'}"
             f" {self.mines} mines in {self.moves} moves | Time: {readable(duration, short=True)}",
             colour=config.BLUE if won else config.RED,
         )
@@ -85,7 +85,7 @@ class Minesweeper(models.View):
 
     def build_embed(self) -> discord.Embed:
         return discord.Embed(
-            description=f"{self.interaction.user.mention}'s Minesweeper Game | Moves: {self.moves} | Mines: {self.mines}",
+            description=f"{self.ctx.author.mention}'s Minesweeper Game | Moves: {self.moves} | Mines: {self.mines}",
             colour=config.BLUE,
         )
 
