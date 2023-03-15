@@ -85,3 +85,6 @@ class Bot(commands.Bot):
 
         if self.user is not None:
             __log__.info(f"{prefix} as {self.user} [ID: {self.user.id}] | Running MAGPB v{__version__}")
+
+    async def get_context(self, origin: discord.Message | discord.Interaction) -> models.Context:
+        return await super().get_context(origin, cls=models.Context)

@@ -13,6 +13,17 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>."""
-from .context import Context
-from .plugin import Plugin
-from .views import View
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+import discord
+from discord.ext import commands
+
+if TYPE_CHECKING:
+    from bot import Bot
+
+
+class Context(commands.Context):
+    bot: Bot
+    guild: discord.Guild
