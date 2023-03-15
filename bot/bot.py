@@ -24,6 +24,8 @@ from bot import __version__, config, models
 
 __log__ = getLogger(__name__)
 
+__all__ = ("Bot",)
+
 
 class Bot(commands.Bot):
     """Represents the main bot instance, subclasses :class:`commands.Bot`

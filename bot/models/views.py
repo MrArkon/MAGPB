@@ -19,6 +19,8 @@ import discord
 
 from bot import config
 
+__all__ = ("View",)
+
 
 class View(discord.ui.View):
     """Represents the base UI View, implements the basic boilerplate

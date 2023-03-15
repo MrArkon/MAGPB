@@ -22,6 +22,8 @@ from discord.ext import commands
 if TYPE_CHECKING:
     from bot import Bot
 
+__all__ = ("Plugin",)
+
 
 class Plugin(commands.Cog):
     """Represents the base cog class. Implements the default :meth:`__init__`
