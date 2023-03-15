@@ -17,7 +17,7 @@ from contextlib import suppress
 
 import discord
 
-from bot import config
+from bot import config, models
 
 __all__ = ("View",)
 
@@ -28,8 +28,8 @@ class View(discord.ui.View):
 
     Parameters
     ----------
-    interaction: :class:`discord.Interaction`
-        The app command interaction.
+    ctx: :class:`models.Context`
+        The context from the command.
     timeout: :class:`float` | ``None``
         The timeout in seconds from last interaction with the UI before
         no longer accepting input. defaults to 180, If ``None`` then there
@@ -40,8 +40,8 @@ class View(discord.ui.View):
         this View and ``None`` does nothing.
     """
 
-    def __init__(self, interaction: discord.Interaction, *, timeout: float | None = 180, on_complete: bool | None = True):
-        self.interaction = interaction
+    def __init__(self, ctx: models.Context, *, timeout: float | None = 180, on_complete: bool | None = True):
+        self.ctx = ctx
         self.on_complete = on_complete
 
         super().__init__(timeout=timeout)
@@ -59,7 +59,7 @@ class View(discord.ui.View):
         -------
         :class:`bool`
         """
-        return interaction.user == self.interaction.user
+        return interaction.user == self.ctx.author
 
     async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.Item) -> None:
         """A callback that is called when an item's callback or :meth:`interaction_check`
