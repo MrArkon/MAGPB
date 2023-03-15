@@ -28,4 +28,5 @@ __all__ = ("Context",)
 
 class Context(commands.Context):
     bot: Bot
+    author: discord.Member
     guild: discord.Guild
