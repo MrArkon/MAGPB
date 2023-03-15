@@ -30,7 +30,6 @@ class Bot(commands.Bot):
     for utility methods shared between plugins."""
 
     launched_at: datetime.datetime
-    tree: models.CommandTree
 
     def __init__(self) -> None:
         intents = discord.Intents(members=True, message_content=True, guilds=True, guild_messages=True)
@@ -46,7 +45,6 @@ class Bot(commands.Bot):
             help_command=None,
             max_messages=None,
             heartbeat_timeout=90.0,
-            tree_cls=models.CommandTree,
         )
 
     async def setup_hook(self) -> None:
