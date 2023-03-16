@@ -20,7 +20,7 @@ from bot import config, models
 
 
 class Information(models.Plugin):
-    @commands.command(aliases=["memberinfo", "mi", "ui"])
+    @commands.command(aliases=["memberinfo", "mi", "ui", "whois"])
     async def userinfo(self, ctx: models.Context, user: discord.Member | discord.User | None = None) -> None:
         """Obtain information about any user, whether in the server or not."""
         user = user or ctx.author
@@ -31,26 +31,31 @@ class Information(models.Plugin):
         embed.set_thumbnail(url=user.display_avatar)
         embed.set_footer(text=f"ID: {user.id}")
 
-        embed.add_field(
-            name="Discord User Since", value="\n".join(discord.utils.format_dt(user.created_at, style=f) for f in ("D", "R"))
-        )
+        general = [
+            f"Discord User Since: {discord.utils.format_dt(user.created_at, style='D')} "
+            f"({discord.utils.format_dt(user.created_at, style='R')})"
+        ]
 
         if isinstance(user, discord.Member):
             if user.joined_at is not None:
-                embed.add_field(
-                    name="Server Member Since",
-                    value="\n".join(discord.utils.format_dt(user.joined_at, style=f) for f in ("D", "R")),
+                general.append(
+                    f"Server Member Since: {discord.utils.format_dt(user.joined_at, style='D')} "
+                    f"({discord.utils.format_dt(user.joined_at, style='R')})"
                 )
 
             sorted_members = sorted(ctx.guild.members, key=lambda member: member.joined_at or discord.utils.utcnow())
-            embed.add_field(name="Join Position", value=f"{sorted_members.index(user) + 1:,}/{len(sorted_members):,}")
+            general.append(f"Join Position: {sorted_members.index(user) + 1:,}/{len(sorted_members):,}")
 
+        embed.add_field(name="General", value="\n".join(general), inline=False)
+
+        if isinstance(user, discord.Member):
             embed.add_field(
-                name=f"Roles [{len(user.roles)}]:",
-                value=", ".join(
+                name=f"Roles [{len(user.roles)}]",
+                value=" ".join(
                     role.mention if not role.is_default() else "@everyone"
-                    for role in sorted(user.roles, key=lambda role: role.position, reverse=True)
+                    for role in sorted(user.roles, key=lambda role: role.position, reverse=True)[:10]
                 ),
+                inline=False,
             )
 
             embed.add_field(
@@ -65,6 +70,7 @@ class Information(models.Plugin):
                     else "Administrator"
                 )
                 or "None",
+                inline=False,
             )
 
         view = discord.ui.View(timeout=None)
