@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-discord-py = {extras = ["speed"], version = "^2.2.2"}
+discord-py = {extras = ["speed"], version = "^2.2.3"}
 psutil = "^5.9.4"
 jishaku = "^2.5.1"
 
